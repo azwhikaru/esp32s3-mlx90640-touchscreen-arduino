@@ -19,17 +19,17 @@
 // #include "esp_http_server.h"
 
 #define TA_SHIFT 8 //Default shift for MLX90640 in open air
-#define MLX_VDD  11
+#define MLX_VDD  46
 #define MLX_SDA  41
 #define MLX_SCL  42
-#define TOUCH_SDA 7
-#define TOUCH_SCL 6
-#define TOUCH_RST 5
+#define TOUCH_SDA 2
+#define TOUCH_SCL 3
+#define TOUCH_RST 4
 
 
 #define SCREEN_ROTATION 1
 #define BAT_ADC  10
-#define SCREEN_BL_PIN 9
+#define SCREEN_BL_PIN 8
 
 #define _SCALE 9
 #define BTN_LONG_PUSH_T 1000
@@ -614,6 +614,9 @@ void setup(void)
  {
 
    Serial.begin(921600);
+
+   pinMode(11, OUTPUT);
+
    touch.begin();
    // 按钮启用
 

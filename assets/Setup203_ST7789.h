@@ -38,13 +38,13 @@
 #define USE_HSPI_PORT
 
 
-#define TFT_MOSI 4
-#define TFT_SCLK 3
+#define TFT_MOSI 5
+#define TFT_SCLK 6
 // #define TFT_CS 10
 // #define TFT_CS 8
-#define TFT_CS 2
-#define TFT_DC 1
-#define TFT_RST 5
+#define TFT_CS 7
+#define TFT_DC 9
+#define TFT_RST 4
 
 // #define TFT_MOSI 19
 // #define TFT_SCLK 18
