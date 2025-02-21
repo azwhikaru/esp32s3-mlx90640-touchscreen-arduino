@@ -6,6 +6,10 @@
 
 ![](./assets/gpio.png)
 
+本项目还作部分改进，如下: 
+
+1. 增加最高、最低温点追踪 (热点追踪)
+
 关于更多未提及的部分 (从源代码构建、使用)，烦请移步 [原项目](https://github.com/umeiko/esp32s3-mlx90640-touchscreen-arduino)
 
 ---
