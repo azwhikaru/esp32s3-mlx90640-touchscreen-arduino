@@ -39,6 +39,8 @@
 
 #define SEND_TO_SERIAL
 
+#define INFO_BAR_HEIGHT 30
+
 const int buttonPin1 = 0;
 const int buttonPin2 = 21;
 
@@ -60,7 +62,7 @@ static KFPTypeS kfpVar3Array[768]; // 卡尔曼滤波器变量数组
 
 paramsMLX90640 mlx90640;
 uint16_t test_points[5][2];
-int brightness = 128;
+int brightness = 512;
 
 int R_colour, G_colour, B_colour;
 // int i, j;
@@ -176,19 +178,23 @@ boolean isConnected()
 }
 
 // 绘制十字
-void draw_cross(int x, int y, int len)
+void draw_cross(int x, int y, int len, uint16_t color = tft.color565(255, 255, 255), int thickness = 1)
 {
-   tft.drawLine(x - len / 2, y, x + len / 2, y, tft.color565(255, 255, 255));
-   tft.drawLine(x, y - len / 2, x, y + len / 2, tft.color565(255, 255, 255));
+   if (!(y < tft.height() - INFO_BAR_HEIGHT)) {
+      return;
+   }
 
-   tft.drawLine(x - len / 4, y, x + len / 4, y, tft.color565(0, 0, 0));
-   tft.drawLine(x, y - len / 4, x, y + len / 4, tft.color565(0, 0, 0));
+   // 绘制外层十字，增加线条宽度
+   for (int i = 0; i < thickness; i++) {
+      tft.drawLine(x - len / 2, y + i, x + len / 2, y + i, color); // 水平线
+      tft.drawLine(x + i, y - len / 2, x + i, y + len / 2, color); // 垂直线
+   }
 }
 
 // 点测温功能
 void show_local_temp(int x, int y)
 {
-   draw_cross(x, y, 10);
+   draw_cross(x, y, 20);
    float temp_xy = mlx90640To[(24 - y / _SCALE) * 32 + (x / _SCALE)];
    int shift_x, shift_y;
    if (x < 140)
@@ -248,6 +254,7 @@ void draw_heat_image_dma(bool re_mapcolor = true)
    static int value;
    static int now_y = 0;
    tft.setRotation(SCREEN_ROTATION);
+
    for (int y = 0; y < 24 * _SCALE; y++)
    {
       for (int x = 0; x < 32 * _SCALE; x++)
@@ -270,6 +277,7 @@ void draw_heat_image_dma(bool re_mapcolor = true)
          now_y = 0;
       }
    }
+
    if (now_y != 0)
    {
       if (dmaBufferSel)
@@ -282,6 +290,10 @@ void draw_heat_image_dma(bool re_mapcolor = true)
       tft.endWrite();
       now_y = 0;
    }
+
+   // 热点追踪
+   draw_cross(max_y * _SCALE, (24 - max_x) * _SCALE, 10, TFT_RED, 2);
+   draw_cross(min_y * _SCALE, (24 - min_x) * _SCALE, 10, TFT_SKYBLUE, 2);
 }
 
 // 热成像读取多任务
@@ -370,6 +382,9 @@ void task_mlx(void *ptr)
                if (mlx90640To[i] < T_min)
                {
                   T_min = mlx90640To[i];
+
+                  min_x = i / 32;
+                  min_y = i % 32;
                }
 
                if (mlx90640To[i] > T_max)
@@ -667,19 +682,19 @@ void task_screen_draw(void *ptr)
       tft.setRotation(SCREEN_ROTATION);
       tft.setTextColor(TFT_WHITE, TFT_BLACK);
       tft.setCursor(25, 220);
-      tft.printf("max: %.2f  ", T_max);
+      tft.printf("MAX: %.2f  ", T_max);
       tft.setCursor(25, 230);
-      tft.printf("min: %.2f  ", T_min);
+      tft.printf("MIN: %.2f  ", T_min);
 
       tft.setCursor(105, 220);
-      tft.printf("avg: %.2f  ", T_avg);
+      tft.printf("AVG: %.2f  ", T_avg);
       tft.setCursor(105, 230);
-      tft.printf("bat: %.2f v ", bat_v);
+      tft.printf("BAT: %.2f   ", bat_v);
 
       tft.setCursor(180, 220);
-      tft.printf("bright: %d  ", brightness);
+      tft.printf("BRIGHT: %d  ", brightness);
       tft.setCursor(180, 230);
-      tft.printf("time: %d ", dt);
+      tft.printf("TIME: %d ", dt);
       tft.printf("ms     ");
 
       vTaskDelay(10);
